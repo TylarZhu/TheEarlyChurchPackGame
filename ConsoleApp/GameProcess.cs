@@ -170,7 +170,11 @@ namespace ConsoleApp
             {
                 foreach (KeyValuePair<string, Players> player in playerDic)
                 {
-                    Console.WriteLine("Do you want to choose a hard question or easy question? Hard -- 1 Easy -- 2");
+                    if (!player.Value.inGame)
+                    {
+                        continue;
+                    }
+                    Console.WriteLine("{0} {1}, Do you want to choose a hard question or easy question? Hard -- 1 Easy -- 2", player.Value.number, player.Value.name);
                     ConsoleKeyInfo choice1 = Console.ReadKey(true);
                     while (choice1.Key != ConsoleKey.D1 && choice1.Key != ConsoleKey.D2)
                     {
@@ -178,8 +182,8 @@ namespace ConsoleApp
                         choice1 = Console.ReadKey(true);
                     }
 
-                    ConsoleKeyInfo choice2 = Console.ReadKey(true);
                     Console.WriteLine("Did he answered correctly? Yes -- 1 No -- 2");
+                    ConsoleKeyInfo choice2 = Console.ReadKey(true);
                     while (choice2.Key != ConsoleKey.D1 && choice2.Key != ConsoleKey.D2)
                     {
                         Console.WriteLine("Did he answered correctly? Yes -- 1 No -- 2");
@@ -199,6 +203,8 @@ namespace ConsoleApp
                     {
                         playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} did not correctly answered the hard Spiritual Depth Question! His/her vote weight does not change!");
                     }
+
+                    
                 }
             }
         }

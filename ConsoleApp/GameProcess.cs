@@ -79,8 +79,10 @@ namespace ConsoleApp
         private static bool winCondition(double totalVotes)
         {
             
-            Console.WriteLine("Judaism lose percentage ( > 0.5 Christian Wins!): " + judaismLostVote / judaismTotalVote);
-            Console.WriteLine("Christian lose percentage ( > 0.35 Judaism Wins!): " + christianLostVote / totalVotes);
+            Console.WriteLine("Judaism lose percentage ( > 0.5 Christian Wins): " + judaismLostVote / judaismTotalVote);
+            Console.WriteLine("Christian lose percentage ( > 0.35 Judaism Wins): " + christianLostVote / totalVotes);
+
+            
 
             if (judaismLostVote / judaismTotalVote > 0.5)
             {
@@ -429,7 +431,6 @@ namespace ConsoleApp
                 Console.ResetColor();
                 Console.WriteLine(" is the Priest in this game!");
                 playerDic[Identities.Pharisee.ToString()].setPriest();
-                playback.Add("Pharisee is the Priest in this game!");
                 playback.Add($"Day 1 Night: {playerDic[Identities.Pharisee.ToString()].number} {playerDic[Identities.Pharisee.ToString()].name} is the Priest in this game!");
 
                 Console.BackgroundColor = ConsoleColor.Green;
@@ -438,7 +439,6 @@ namespace ConsoleApp
                 Console.ResetColor();
                 Console.WriteLine(" is the Ruler Of The Synagogue in this game!");
                 playerDic[Identities.Scribes.ToString()].setRulerOfTheSynagogue();
-                playback.Add("Scribes is the Ruler Of The Synagogue in this game!");
                 playback.Add($"Day 1 Night: {playerDic[Identities.Scribes.ToString()].number} {playerDic[Identities.Scribes.ToString()].name} is the Ruler Of The Synagogue in this game!");
             }
         }
@@ -551,7 +551,6 @@ namespace ConsoleApp
         {
             bool quit = false;
             Console.Clear();
-            Console.Clear();
             Console.BackgroundColor = ConsoleColor.Green;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("John");
@@ -626,7 +625,7 @@ namespace ConsoleApp
         }
         public static int tryPraseInput(string key)
         {
-            int number = 0;
+            int number;
             while (!int.TryParse(key, out number))
             {
                 Console.WriteLine("Please enter a valid number!");

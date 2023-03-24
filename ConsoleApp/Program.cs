@@ -193,8 +193,20 @@ namespace ConsoleApp
             Console.ForegroundColor = ConsoleColor.Black;
             Console.WriteLine("Play Back:");
             Console.ResetColor();
+            int day = 0;
             for (int i = 0; i < playback.Length; i++)
             {
+                string[] y = playback[i].Split(' ');
+                int playbackDay;
+                if(int.TryParse(y[1], out playbackDay))
+                {
+                    if (day != playbackDay)
+                    {
+                        day = playbackDay;
+                        Console.WriteLine();
+                        Console.WriteLine();
+                    }
+                }
                 Console.WriteLine(playback[i]);
             }
         }

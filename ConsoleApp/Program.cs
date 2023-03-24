@@ -149,49 +149,51 @@ namespace ConsoleApp
                 ConsoleKeyInfo choice1 = new ConsoleKeyInfo();
                 ConsoleKeyInfo choice2 = new ConsoleKeyInfo();
                 string name = "";
-                while (choice1.Key != ConsoleKey.D1)
+                
+                Console.Write("Please enter your name (no space): ");
+                name = Console.ReadLine()!;
+                while(name == "")
                 {
                     Console.Write("Please enter your name (no space): ");
                     name = Console.ReadLine()!;
-                    while(name == "")
-                    {
-                        Console.Write("Please enter your name (no space): ");
-                        name = Console.ReadLine()!;
-                    }
-
-                    Console.WriteLine("if you are ready, press 1 to see your identity.");
-                    choice1 = Console.ReadKey(true);
-                    while(choice1.Key != ConsoleKey.D1)
-                    {
-                        Console.WriteLine("if you are ready, press 1 to see your identity.");
-                        choice1 = Console.ReadKey(true);
-                    }
-
-                    Console.Write("Your identity is: ");
-                    Console.BackgroundColor = ConsoleColor.Blue;
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(identities[i]);
-                    Console.ResetColor();
-                    Console.Write("!");
-                    Console.WriteLine();
-
-                    Console.WriteLine("Press 2 and pass on to the next player.");
-                    while (choice2.Key != ConsoleKey.D2)
-                    {
-                        choice2 = Console.ReadKey(true);
-                        Console.WriteLine("If you ready, Press 2 and pass on to the next player.");
-                    }
-                    
-                    Console.Clear();
                 }
 
+                Console.WriteLine("if you are ready, press 1 to see your identity.");
+                choice1 = Console.ReadKey(true);
+                while(choice1.Key != ConsoleKey.D1)
+                {
+                    Console.WriteLine("if you are ready, press 1 to see your identity.");
+                    choice1 = Console.ReadKey(true);
+                }
+
+                Console.Write("Your identity is: ");
+                Console.BackgroundColor = ConsoleColor.Blue;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(identities[i]);
+                Console.ResetColor();
+                Console.Write("!");
+                Console.WriteLine();
+
+                Console.WriteLine("Press 2 and pass on to the next player.");
+                choice2 = Console.ReadKey(true);
+                while (choice2.Key != ConsoleKey.D2)
+                {
+                    Console.WriteLine("If you ready, Press 2 and pass on to the next player.");
+                    choice2 = Console.ReadKey(true);
+                }
+                Console.Clear();
                 players.Add(new Players(identities[i], name, i + 1));
             }
             return players.ToArray();
         }
         private static void playBack(string[] playback)
         {
-            for(int i = 0; i < playback.Length; i++)
+            Console.Clear();
+            Console.BackgroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.WriteLine("Play Back:");
+            Console.ResetColor();
+            for (int i = 0; i < playback.Length; i++)
             {
                 Console.WriteLine(playback[i]);
             }
@@ -241,6 +243,7 @@ namespace ConsoleApp
 
             GameProcess.processing(playerDic, totalVotes, playback);
 
+            GameProcess.press1ToContinue();
             playBack(playback.ToArray());
 
             

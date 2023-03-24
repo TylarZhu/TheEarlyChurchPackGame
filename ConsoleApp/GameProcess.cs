@@ -78,17 +78,24 @@ namespace ConsoleApp
         /// <returns></returns>
         private static bool winCondition(double totalVotes)
         {
-            Console.WriteLine("Judaism vote percentage: " + judaismLostVote / judaismTotalVote);
-            Console.WriteLine("Christian vote percentage: " + christianLostVote / totalVotes);
+            
+            Console.WriteLine("Judaism lose percentage ( > 0.5 Christian Wins!): " + judaismLostVote / judaismTotalVote);
+            Console.WriteLine("Christian lose percentage ( > 0.35 Judaism Wins!): " + christianLostVote / totalVotes);
 
             if (judaismLostVote / judaismTotalVote > 0.5)
             {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Black;
                 Console.WriteLine("Christian Wins!");
+                Console.ResetColor();
                 return false;
             }
             else if (christianLostVote / totalVotes > 0.35)
             {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Black;
                 Console.WriteLine("Judaism Wins!");
+                Console.ResetColor();
                 return false;
             }
             else
@@ -96,7 +103,7 @@ namespace ConsoleApp
                 return true;
             }
         }
-        private static void press1ToContinue()
+        public static void press1ToContinue()
         {
             Console.WriteLine("Press 1 to continue!");
             ConsoleKeyInfo choice1 = Console.ReadKey(true);
@@ -106,13 +113,92 @@ namespace ConsoleApp
                 choice1 = Console.ReadKey(true);
             }
         }
-        private static void randomGenerateATopic() // TODO
+        private static void randomGenerateATopic(Dictionary<string, Players> playerDic, List<string> playback, int day)
         {
-            Console.WriteLine("Today's topic is: ");
-            Console.BackgroundColor = ConsoleColor.Blue;
-            Console.ForegroundColor = ConsoleColor.White;
             Topics[] topics = Enum.GetValues(typeof(Topics)).Cast<Topics>().ToArray();
+            Random rand = new Random();
+            bool spiritualQuestion = false;
+
+            Console.Write("Today's topic is: ");
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
+            switch (topics[rand.Next(topics.Length)])
+            {
+                case Topics.Topic1:
+                    Console.Write("Who is the Scribes?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the Scribes?");
+                    break;
+                case Topics.Topic2:
+                    Console.Write("Who is the Pharisees?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the Pharisees?");
+                    break;
+                case Topics.Topic3:
+                    Console.Write("Who is Judas?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the Judas?");
+                    break;
+                case Topics.Topic4:
+                    Console.Write("Who is Peter?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the Peter?");
+                    break;
+                case Topics.Topic5:
+                    Console.Write("Who is John?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the John?");
+                    break;
+                case Topics.Topic6:
+                    Console.Write("Who is Nicodemus?");
+                    playback.Add($"Day {day} daylight, the discussion topic is Who is the Nicodemus?");
+                    break;
+                case Topics.Topic7:
+                    Console.Write("Spiritual Depth Question1.");
+                    spiritualQuestion = true;
+                    break;
+                case Topics.Topic8:
+                    Console.Write("Spiritual Depth Question2.");
+                    spiritualQuestion = true;
+                    break;
+                case Topics.Topic9:
+                    Console.Write("Spiritual Depth Question3.");
+                    spiritualQuestion = true;
+                    break;
+            }
             Console.ResetColor();
+            Console.WriteLine();
+
+            if (spiritualQuestion)
+            {
+                foreach (KeyValuePair<string, Players> player in playerDic)
+                {
+                    Console.WriteLine("Do you want to choose a hard question or easy question? Hard -- 1 Easy -- 2");
+                    ConsoleKeyInfo choice1 = Console.ReadKey(true);
+                    while (choice1.Key != ConsoleKey.D1 && choice1.Key != ConsoleKey.D2)
+                    {
+                        Console.WriteLine("Do you want to choose a hard question or easy question? Hard -- 1 Easy -- 2");
+                        choice1 = Console.ReadKey(true);
+                    }
+
+                    ConsoleKeyInfo choice2 = Console.ReadKey(true);
+                    Console.WriteLine("Did he answered correctly? Yes -- 1 No -- 2");
+                    while (choice2.Key != ConsoleKey.D1 && choice2.Key != ConsoleKey.D2)
+                    {
+                        Console.WriteLine("Did he answered correctly? Yes -- 1 No -- 2");
+                        choice2 = Console.ReadKey(true);
+                    }
+                    if (choice1.Key == ConsoleKey.D1 && choice2.Key == ConsoleKey.D1)
+                    {
+                        player.Value.setVote(player.Value.vote + 0.5);
+                        playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} correctly answered the hard Spiritual Depth Question! His/her vote weight increase 0.5!");
+                    }
+                    else if(choice1.Key == ConsoleKey.D2 && choice2.Key == ConsoleKey.D1)
+                    {
+                        player.Value.setVote(player.Value.vote + 0.25);
+                        playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} correctly answered the easy Spiritual Depth Question! His/her vote weight increase 0.25!");
+                    }
+                    else
+                    {
+                        playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} did not correctly answered the hard Spiritual Depth Question! His/her vote weight does not change!");
+                    }
+                }
+            }
         }
         /// <summary>
         /// return most vote player number.
@@ -224,9 +310,10 @@ namespace ConsoleApp
                     equalVotePlayback += equalVotePlayers[i].number + " " + equalVotePlayers[i].name + ", ";
                     
                 }
+                Console.WriteLine(equalVotePlayback + " have same amount of vote!");
                 playback.Add($"Day {day} daylight vote: " + equalVotePlayback + " have same amount of vote! No one has lost vote weight!");
                 Console.Clear();
-                Console.WriteLine("There are two players have equal amount of votes!");
+/*                Console.WriteLine("There are two players have equal amount of votes!");*/
                 Console.WriteLine("This round, no one has lost vote weight!");
                 return -1;
 
@@ -271,7 +358,7 @@ namespace ConsoleApp
                         press1ToContinue();
                     }
                 }
-                randomGenerateATopic();
+                randomGenerateATopic(playerDic, playback, day);
             }
             else
             {
@@ -394,6 +481,7 @@ namespace ConsoleApp
         }
         private static void judasMeetPriest()
         {
+            Console.Clear();
             Console.BackgroundColor = ConsoleColor.Green;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Judas");
@@ -408,8 +496,6 @@ namespace ConsoleApp
         private static int nicodemusProtectionRound(Dictionary<string, Players> playerDic, List<string> playback, int exile, int day)
         {
             ConsoleKeyInfo choice1;
-            int exileProtect = exile;
-
             Console.Clear();
             Console.BackgroundColor = ConsoleColor.Green;
             Console.ForegroundColor = ConsoleColor.White;
@@ -419,50 +505,47 @@ namespace ConsoleApp
             Console.WriteLine();
 
             Console.Write("Tonight, ");
-            // 如果尼哥底母在游戏里，并且有技能
-            if (playerDic[Identities.Nicodemus.ToString()].inGame && playerDic[Identities.Nicodemus.ToString()].nicodemusProtection)
+            // 如果exiled不是尼哥底母，尼哥底母有技能，就询问要不要保护。其他condition，直接跳过。
+            if (playerDic.ElementAt(exile - 1).Value.identity != Identities.Nicodemus && 
+                playerDic[Identities.Nicodemus.ToString()].nicodemusProtection)
             {
                 Console.Write(playerDic.ElementAt(exile - 1).Value.number + " " + playerDic.ElementAt(exile - 1).Value.name);
-                // 如果驱逐的人不是尼哥底母，就询问要不要保护。如果是的话，就跳过。
-                if (playerDic.ElementAt(exile - 1).Value.identity != Identities.Nicodemus)
+                
+                Console.Write(" is out. Are you going to save him/her?");
+                Console.WriteLine();
+                Console.WriteLine("Save -- 1, Not save -- 2");
+                choice1 = Console.ReadKey(true);
+                while (choice1.Key != ConsoleKey.D1 && choice1.Key != ConsoleKey.D2)
                 {
-                    Console.Write(" is out. Are you going to save him/her?");
-                    Console.WriteLine();
                     Console.WriteLine("Save -- 1, Not save -- 2");
                     choice1 = Console.ReadKey(true);
-                    while (choice1.Key != ConsoleKey.D1 && choice1.Key != ConsoleKey.D2)
-                    {
-                        Console.WriteLine("Save -- 1, Not save -- 2");
-                        choice1 = Console.ReadKey(true);
-                    }
-                    if (choice1.Key == ConsoleKey.D1)
-                    {
-                        playerDic[Identities.Nicodemus.ToString()].changeNicodemusProtection();
-                        exileProtect = int.MinValue;
-                        playback.Add($"Day {day} Night: Nicodemus saved his/her!");
-                    }
-                    else
-                    {
-                        playback.Add($"Day {day} Night: Nicodemus choose to not to save his/her!");
-                    }
-                } 
+                }
+                if (choice1.Key == ConsoleKey.D1)
+                {
+                    playerDic[Identities.Nicodemus.ToString()].changeNicodemusProtection();
+                    playback.Add($"Day {day} Night: Nicodemus saved his/her!");
+                    return int.MinValue;
+                }
                 else
                 {
-                    Console.Write(" no need to save.");
-                    Console.WriteLine();
-                    exileProtect = int.MinValue;
-                    playback.Add($"Day {day} Night: Nicodemus do not need to save!");
-                    press1ToContinue();
+                    playback.Add($"Day {day} Night: Nicodemus choose to not to save his/her!");
+                    return exile;
                 }
+            }
+            else if (playerDic.ElementAt(exile - 1).Value.identity == Identities.Nicodemus)
+            {
+                Console.WriteLine("The exiled person is Nicodemus. Nicodemus cannot out of game.");
+                playback.Add($"Day {day} Night: Nicodemus cannot be exiled!");
+                return int.MinValue;
             }
             else
             {
                 Console.Write(" is out. Are you going to save him/her?");
                 Console.WriteLine();
-                press1ToContinue();
                 playback.Add($"Day {day} Night: Nicodemus cannot use his ability!");
+                return exile;
+                
             }
-            return exileProtect;
         }
         private static void johnUseFire(Dictionary<string, Players> playerDic, Dictionary<string, Players> johnFireList, List<string> playback, int day)
         {
@@ -678,8 +761,6 @@ namespace ConsoleApp
         /// <returns> exiled player's number </returns>
         private static int night(int day, Dictionary<string, Players> playerDic, List<string> playback, string lastExiled, Dictionary<string, Players> johnFireList)
         {
-            ConsoleKeyInfo choice1;
-
             int exile;
 
             //print 夜间
@@ -709,13 +790,7 @@ namespace ConsoleApp
 
                 // 犹大和祭司见面
                 judasMeetPriest();
-                Console.WriteLine("If finished, please ask Judas to close eyes and press 1 to continue.");
-                choice1 = Console.ReadKey(true);
-                while (choice1.Key != ConsoleKey.D1)
-                {
-                    Console.WriteLine("If finished, please ask Judas to close eyes and press 1 to continue.");
-                    choice1 = Console.ReadKey(true);
-                }
+                press1ToContinue();
             }
 
             //祭司放逐时间
@@ -723,6 +798,7 @@ namespace ConsoleApp
 
             //尼哥底母时间
             exile = nicodemusProtectionRound(playerDic, playback, exile, day);
+            press1ToContinue();
 
             //约翰天火技能时间
             johnUseFire(playerDic, johnFireList, playback, day);
@@ -762,6 +838,7 @@ namespace ConsoleApp
         public static void processing(Dictionary<string, Players> playerDic, double totalVotes, List<string> playback)
         {
             string lastExiled = "";
+            bool whoWins = true;
             
             int day = 1;
             int exile;
@@ -779,12 +856,12 @@ namespace ConsoleApp
                 }
             }
 
-            while (winCondition(totalVotes))
+            while (whoWins)
             {
-                press1ToContinue();
                 daylight(day, playerDic, lastExiled, playback);
 
-                if(winCondition(totalVotes))
+                whoWins = winCondition(totalVotes);
+                if (whoWins)
                 {
                     press1ToContinue();
                     exile = night(day, playerDic, playback, lastExiled, johnFireList);
@@ -830,10 +907,12 @@ namespace ConsoleApp
                     if (day == 3)
                     {
                         playerDic[Identities.Peter.ToString()].setVote(playerDic[Identities.Peter.ToString()].vote + 1);
+                        Console.WriteLine("Day 3, Peter's vote increase by 1!");
                         playback.Add("Day 3, Peter's vote increase by 1!");
                     }
+                    whoWins = winCondition(totalVotes);
+                    press1ToContinue();
                 }
-                
             }
         }
     }

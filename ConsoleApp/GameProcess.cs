@@ -36,7 +36,7 @@ namespace ConsoleApp
                 }
                 row.Add(players[i].name);
                 row.Add(players[i].identity.ToString());
-                row.Add(players[i].vote.ToString());
+                row.Add(players[i].changedVote.ToString());
 
                 if (players[i].priest)
                 {
@@ -81,9 +81,6 @@ namespace ConsoleApp
             
             Console.WriteLine("Judaism lose percentage ( > 0.5 Christian Wins): " + judaismLostVote / judaismTotalVote);
             Console.WriteLine("Christian lose percentage ( > 0.35 Judaism Wins): " + christianLostVote / totalVotes);
-
-            
-
             if (judaismLostVote / judaismTotalVote > 0.5)
             {
                 Console.BackgroundColor = ConsoleColor.Yellow;
@@ -191,21 +188,21 @@ namespace ConsoleApp
                     }
                     if (choice1.Key == ConsoleKey.D1 && choice2.Key == ConsoleKey.D1)
                     {
-                        player.Value.setVote(player.Value.vote + 0.5);
+                        player.Value.setChangeVote(player.Value.changedVote + 0.5);
                         playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} correctly answered the hard Spiritual Depth Question! His/her vote weight increase 0.5!");
                     }
                     else if(choice1.Key == ConsoleKey.D2 && choice2.Key == ConsoleKey.D1)
                     {
-                        player.Value.setVote(player.Value.vote + 0.25);
+                        player.Value.setChangeVote(player.Value.changedVote + 0.25);
                         playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} correctly answered the easy Spiritual Depth Question! His/her vote weight increase 0.25!");
                     }
                     else
                     {
                         playback.Add($"Day {day} daylight, {player.Value.number} {player.Value.name} did not correctly answered the hard Spiritual Depth Question! His/her vote weight does not change!");
                     }
-
-                    
                 }
+                Console.Clear();
+                printPlayersInfo(playerDic.Values.ToArray());
             }
         }
         /// <summary>
@@ -272,11 +269,11 @@ namespace ConsoleApp
                 // 被投的玩家加票数
                 if (!voteList.ContainsKey(votePeople - 1))
                 {
-                    voteList[votePeople - 1] = players[i].vote;
+                    voteList[votePeople - 1] = players[i].changedVote;
                 }
                 else
                 {
-                    voteList[votePeople - 1] += players[i].vote;
+                    voteList[votePeople - 1] += players[i].changedVote;
                 }
             }
             double maxVote = voteList.Values.Max();
@@ -382,23 +379,30 @@ namespace ConsoleApp
                 {
                     Console.Clear();
                     Players votedPlayer = playerDic.ElementAt(votedPlayerNumber).Value;
-                    if (votedPlayer.identity == Identities.Laity ||
-                        votedPlayer.identity == Identities.Nicodemus ||
-                        votedPlayer.identity == Identities.John ||
-                        votedPlayer.identity == Identities.Peter)
+                    if (!votedPlayer.disempowering)
                     {
-                        Console.WriteLine("A Christian has been remove vote's weight!");
-                        christianLostVote += votedPlayer.vote;
+                        playerDic.ElementAt(votedPlayerNumber).Value.setDisempowering();
+                        if (votedPlayer.identity == Identities.Laity ||
+                            votedPlayer.identity == Identities.Nicodemus ||
+                            votedPlayer.identity == Identities.John ||
+                            votedPlayer.identity == Identities.Peter)
+                        {
+                            Console.WriteLine("A Christian has been remove vote's weight!");
+                            christianLostVote += votedPlayer.originalVote;
+                        }
+                        else
+                        {
+                            Console.WriteLine("A Judaism has been remove vote's weight!");
+                            judaismLostVote += votedPlayer.originalVote;
+                        }
+                        playback.Add($"Day {day} daylight: {votedPlayer.number} {votedPlayer.name} has been remove vote's weight");
+                        Console.WriteLine("({0} {1}) has been remove vote's weight!", votedPlayer.number, votedPlayer.name);
+                        playerDic.ElementAt(votedPlayerNumber).Value.setChangeVote(0);
                     }
                     else
                     {
-                        Console.WriteLine("A Judaism has been remove vote's weight!");
-                        judaismLostVote += votedPlayer.vote;
+                        Console.WriteLine("({0} {1}) has already been disempowered before!", votedPlayer.number, votedPlayer.name);
                     }
-                    playback.Add($"Day {day} daylight: {votedPlayer.number} {votedPlayer.name} has been remove vote's weight");
-                    Console.WriteLine("({0} {1}) has been remove vote's weight!", votedPlayer.number, votedPlayer.name);
-                    playerDic.ElementAt(votedPlayerNumber).Value.setVote(0);
-                    
                 }
                 printPlayersInfo(playerDic.Values.ToArray());
             }
@@ -469,7 +473,7 @@ namespace ConsoleApp
             Console.Write("Last night, the exiled person is ");
 
             if (rulerOfTheSynagogue!.inGame &&
-                rulerOfTheSynagogue!.vote != 0 &&
+                rulerOfTheSynagogue!.changedVote != 0 &&
                 lastExiled != "" &&
                 (lastExiled.Equals(Identities.Laity.ToString()) ||
                 lastExiled.Equals(Identities.Nicodemus.ToString()) ||
@@ -612,7 +616,7 @@ namespace ConsoleApp
                         }
                     }
                     Players firePerson = playerDic.ElementAt(fire - 1).Value;
-                    firePerson.setVote(firePerson.vote / 2);
+                    firePerson.setChangeVote(firePerson.changedVote / 2);
                     johnFireList[firePerson.identity.ToString()] = firePerson;
                     playback.Add($"Day {day} Night: John fire {firePerson.number} {firePerson.name}!");
                 }
@@ -857,7 +861,7 @@ namespace ConsoleApp
                     players.identity == Identities.Pharisee ||
                     players.identity == Identities.Scribes)
                 {
-                    judaismTotalVote += playerDic.ElementAt(i).Value.vote;
+                    judaismTotalVote += playerDic.ElementAt(i).Value.originalVote;
                 }
             }
 
@@ -888,11 +892,11 @@ namespace ConsoleApp
                                 playerDic[exileIdentity].identity == Identities.Pharisee ||
                                 playerDic[exileIdentity].identity == Identities.Scribes)
                             {
-                                judaismLostVote += playerDic[exileIdentity].vote;
+                                judaismLostVote += playerDic[exileIdentity].originalVote;
                             }
                             else
                             {
-                                christianLostVote += playerDic[exileIdentity].vote;
+                                christianLostVote += playerDic[exileIdentity].originalVote;
                             }
                         }
                         else
@@ -911,7 +915,7 @@ namespace ConsoleApp
                     day++;
                     if (day == 3)
                     {
-                        playerDic[Identities.Peter.ToString()].setVote(playerDic[Identities.Peter.ToString()].vote + 1);
+                        playerDic[Identities.Peter.ToString()].setChangeVote(playerDic[Identities.Peter.ToString()].changedVote + 1);
                         Console.WriteLine("Day 3, Peter's vote increase by 1!");
                         playback.Add("Day 3, Peter's vote increase by 1!");
                     }

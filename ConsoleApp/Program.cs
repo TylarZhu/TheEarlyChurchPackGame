@@ -247,7 +247,7 @@ namespace ConsoleApp
                 else
                 {
                     playerDic[player.identity.ToString()] = player;
-                    totalVotes += player.vote;
+                    totalVotes += player.originalVote;
                 }  
             }
                 
